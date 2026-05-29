@@ -1,5 +1,6 @@
 #include <string.h>
 #include "editor.h"
+#include "../include/garbageCollection.h"
 
 // Otomatik GC tetiklemesi için sayaç
 int gcCounter = 0;

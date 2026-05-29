@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "editor.h"
+#include "../include/editor.h"
 
 // Bütün satırların dizisi
 Node textbuffer[MAX_LINES];
