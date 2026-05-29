@@ -1,14 +1,14 @@
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -I include
 LIBS = -lncurses
 
 TARGET = editor
 
-SRCS = 	main.c \
-		editor.c \
-		operations.c \
-		ui.c \
-		garbageCollection.c \
+SRCS = 	src/main.c \
+		src/editor.c \
+		src/operations.c \
+		src/ui.c \
+		src/garbageCollection.c \
 		
 OBJS = $(SRCS:.c=.o)
 
@@ -16,10 +16,10 @@ all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
-
-editor : main.o
-	$(CC) $(CFLAGS) -o editor main.o $(LIBS)
 	
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
 	rm -f *.o editor
 	
