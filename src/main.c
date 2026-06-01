@@ -3,13 +3,10 @@
 #include <ncurses.h>
 #include "../include/editor.h"
 #include "../include/garbageCollection.h"
+#include "../include/operations.h"
 //#include "../include/ui.h"
-//#include "../include/operations.h" 
 
-//operation ve ui oncesi placeholder
-void insert(int index){}
-void delete(int index){}
-void replace(int index){}
+//ui oncesi placeholder
 void print_buffer(void){}
 int cursorLine(void){return 0;}
 int cursorChar(void){return 0;}
@@ -42,11 +39,12 @@ int main(void){
             //delete
             case 'D':
             case 'd':
-                delete(cursorLine());
+                deleteNode(cursorLine());
+                maybeAutoGC();
             //replace
             case 'R':
             case 'r':
-                replace(cursorChar());
+                replace(cursorLine(), cursorChar());
             //print
             case 'P':
             case 'p':
