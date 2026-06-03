@@ -1,3 +1,9 @@
+/*
+main.c - Ege Huriel (Kisi 5)
+Integration
+- ana komut dongusu
+- tus navigasyonu / keymapping
+*/
 #include <stdio.h>
 #include <string.h>
 #include <ncurses.h>

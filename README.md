@@ -133,5 +133,7 @@ texteditor/
 ---
 
 CSE 232 Systems Programming - Term Project
+
 Ege Huriel, Cihat Özlük, Musab Tunç, Ferhat Canşi, Atakan Naktürk
+
 Yeditepe University

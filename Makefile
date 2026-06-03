@@ -3,6 +3,7 @@ CFLAGS = -Wall -g -I include
 LIBS = -lncurses
 
 TARGET = editor
+BUILD = build
 
 SRCS = 	src/main.c \
 		src/editor.c \
@@ -10,20 +11,31 @@ SRCS = 	src/main.c \
 		src/ui.c \
 		src/garbageCollection.c \
 		
-OBJS = $(SRCS:.c=.o)
+OBJS = $(patsubst src/%.c, $(BUILD)/%.o, $(SRCS))
 
-all: $(TARGET)
+all: $(BUILD) $(TARGET)
+
+$(BUILD):
+	@echo "\n-------Building-------\n"
+	mkdir -p $(BUILD)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
+	@echo "\n-------Built-------\n"
 	
-%.o: %.c
+$(BUILD)/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o editor
-	
+	@echo "\n-------Cleaning-------\n"
+	rm -rf $(BUILD) $(TARGET)
+
+clear:
+	@echo "\n-------Clearing-------\n"
+	rm -rf $(BUILD) $(TARGET)
+
 run: all
+	@echo "\n-------Running-------\n"
 	./editor
 	
 .PHONY: all clean run
