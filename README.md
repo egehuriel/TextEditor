@@ -132,8 +132,14 @@ texteditor/
 
 ---
 
-CSE 232 Systems Programming - Term Project
-
-Ege Huriel, Cihat Özlük, Musab Tunç, Ferhat Canşi, Atakan Naktürk
+## Contributors
+**CSE 232 Term Project - Gropu 4**
+- Ege Huriel
+- Cihat Özlük
+- Musab Tunç
+- Ferhat Canşi
+- Atakan Naktürk
 
 Yeditepe University
+
+---
