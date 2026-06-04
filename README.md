@@ -133,7 +133,7 @@ texteditor/
 ---
 
 ## Contributors
-**CSE 232 Term Project - Gropu 4**
+**CSE 232 Term Project - Group 4**
 - Ege Huriel
 - Cihat Özlük
 - Musab Tunç
