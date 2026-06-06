@@ -6,10 +6,11 @@
  * replace(index, col) : belirtilen satır+sütundaki tek karakteri değiştir
  */
 
-#include <stdio.h>
+//#include <stdio.h>
 #include <string.h>
 #include "../include/editor.h"
 #include "../include/operations.h"
+#include <ncurses.h>
 
 /* ─────────────────────────────────────────────────────────────
  * Yardımcı: textbuffer[]'da gerçekten linked-list üyesi olan,
@@ -47,17 +48,17 @@ int insert(int index) {
 
     /* Buffer dolu mu? */
     if (freeIndex >= MAX_LINES) {
-        printf("HATA: Textbuffer dolu, insert() basarisiz.\n");
+        // printf("HATA: Textbuffer dolu, insert() basarisiz.\n");
         return -1;
     }
 
     /* Kullanıcıdan yeni satır içeriğini al */
-    printf("Yeni satir icerigi (max %d karakter): ", MAX_CHARS - 1);
-    if (fgets(newLine, sizeof(newLine), stdin) == NULL) {
-        return -1;
-    }
-    /* Satır sonu karakterini temizle */
-    stripNewline(newLine);
+    //ncurses implemeantion --> no printf 
+    mvprintw(LINES - 1, 0, "NEW LINE: ");
+    clrtoeol();
+    echo();
+    getnstr(newLine, MAX_CHARS -1);
+    noecho();
 
     /* Yeni node'un fiziksel konumu */
     newIdx = freeIndex;
@@ -72,6 +73,15 @@ int insert(int index) {
         textbuffer[newIdx].prev = NIL;
         textbuffer[newIdx].next = NIL;
         head = newIdx;
+        tail = newIdx;
+        return newIdx;
+    }
+
+    // index NIL ise sona ekle
+    if (index == NIL){
+        textbuffer[newIdx].prev = tail;
+        textbuffer[newIdx].next = NIL;
+        textbuffer[tail].next = newIdx;
         tail = newIdx;
         return newIdx;
     }
@@ -125,24 +135,17 @@ int insert(int index) {
  * Dönüş değeri : 0 başarı, -1 geçersiz index
  * ────────────────────────────────────────────────────────────── */
 int deleteNode(int index) {
-    int target;
+    //int target;
     int prevNode;
     int nextNode;
 
-    if (head == NIL) {
-        printf("HATA: Liste bos, silinemez.\n");
+    if (head == NIL || index == NIL) {
+        //printf("HATA: Liste bos, silinemez.\n");
         return -1;
     }
 
-    target = nthNode(index);
-
-    if (target == NIL) {
-        printf("HATA: %d. index bulunamadi.\n", index);
-        return -1;
-    }
-
-    prevNode = textbuffer[target].prev;
-    nextNode = textbuffer[target].next;
+    prevNode = textbuffer[index].prev;
+    nextNode = textbuffer[index].next;
 
     /* Komşuların bağlarını güncelle */
     if (prevNode != NIL) {
@@ -163,8 +166,8 @@ int deleteNode(int index) {
      * Node'un kendi bağlarını NIL yap – GC'ye işaret.
      * (İçerik silinmiyor; GC sıkıştıracak.)
      */
-    textbuffer[target].prev = NIL;
-    textbuffer[target].next = NIL;
+    textbuffer[index].prev = NIL;
+    textbuffer[index].next = NIL;
 
     return 0;
 }
@@ -178,45 +181,34 @@ int deleteNode(int index) {
  * Dönüş değeri : 0 başarı, -1 hata
  * ────────────────────────────────────────────────────────────── */
 int replace(int index, int col) {
-    int   target;
+    //int   target;
     int   len;
     char  newChar;
     char  oldChar;
 
     if (head == NIL) {
-        printf("HATA: Liste bos.\n");
+        //printf("HATA: Liste bos.\n");
         return -1;
     }
 
-    target = nthNode(index);
-
-    if (target == NIL) {
-        printf("HATA: %d. satir bulunamadi.\n", index);
-        return -1;
-    }
-
-    len = (int)strlen(textbuffer[target].statement);
+    len = (int)strlen(textbuffer[index].statement);
 
     if (col < 0 || col >= len) {
-        printf("HATA: Gecersiz sutun %d (satir uzunlugu: %d).\n", col, len);
+        //printf("HATA: Gecersiz sutun %d (satir uzunlugu: %d).\n", col, len);
         return -1;
     }
 
     /* Kullanıcıdan yeni karakter al */
-    printf("Yeni karakter: ");
-    fflush(stdout);
-    newChar = (char)getchar();
-    /* stdin tamponu temizle */
-    {
-        int tmp;
-        while ((tmp = getchar()) != '\n' && tmp != EOF);
-    }
+    //printf("Yeni karakter: ");
+    mvprintw(LINES -1, 0, "NEW CHAR: ");
+    clrtoeol();
+    refresh();
+    noecho();
+    newChar = (char)getch();
+    textbuffer[index].statement[col] = newChar;
 
-    oldChar = textbuffer[target].statement[col];
-    textbuffer[target].statement[col] = newChar;
-
-    printf("Satir %d, Sutun %d: '%c' -> '%c'\n", index, col, oldChar, newChar);
-    printf("Guncellenmis satir: %s\n", textbuffer[target].statement);
+    //printf("Satir %d, Sutun %d: '%c' -> '%c'\n", index, col, oldChar, newChar);
+    //printf("Guncellenmis satir: %s\n", textbuffer[target].statement);
 
     return 0;
 }
