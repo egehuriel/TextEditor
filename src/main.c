@@ -1,99 +1,113 @@
-/*
-main.c - Ege Huriel (Kisi 5)
-Integration
-- ana komut dongusu
-- tus navigasyonu / keymapping
-*/
 #include <stdio.h>
 #include <string.h>
 #include <ncurses.h>
 #include "../include/editor.h"
 #include "../include/garbageCollection.h"
 #include "../include/operations.h"
-//#include "../include/ui.h"
+#include "../include/ui.h"
 
-//ui oncesi placeholder
-void print_buffer(void){}
-int cursorLine(void){return 0;}
-int cursorChar(void){return 0;}
-
-int main(void){
+int main(void) {
     int ch;
     char filename[256];
-    initscr();
-    raw();
-    noecho();
-    keypad(stdscr, true);
-    while(true){
+
+    ui_init();
+    ui_status("Ready. Press E to open a file.");
+
+    while (1) {
         ch = getch();
-        switch(ch){
-            //echo file
+
+        switch (ch) {
+
             case 'E':
             case 'e':
+                ui_status("Filename: ");
                 echo();
-                mvprintw(0,0, "file name: ");
+                getnstr(filename, sizeof(filename) - 1);
                 noecho();
                 edit(filename);
                 print_buffer();
+                ui_status("File loaded.");
                 break;
-            //insert
+
             case 'I':
             case 'i':
-                insert(cursorLine());
+                insert(cursorLineNth());
                 maybeAutoGC();
+                print_buffer();
+                ui_status("Line inserted.");
                 break;
-            //delete
+
             case 'D':
             case 'd':
-                deleteNode(cursorLine());
-                maybeAutoGC();
-            //replace
+                if (deleteNode(cursorLineNth()) == 0) {
+                    maybeAutoGC();
+                    print_buffer();
+                    ui_status("Line deleted.");
+                } else {
+                    ui_status("ERROR: Delete failed.");
+                }
+                break;
+
             case 'R':
             case 'r':
-                replace(cursorLine(), cursorChar());
-            //print
+                if (replace(cursorLineNth(), cursorChar()) == 0) {
+                    print_buffer();
+                    ui_status("Character replaced.");
+                } else {
+                    ui_status("ERROR: Replace failed.");
+                }
+                break;
+
             case 'P':
             case 'p':
                 print_buffer();
+                ui_status("Text displayed.");
                 break;
-            //save
+
             case 'S':
             case 's':
                 save();
+                ui_status("File saved.");
                 break;
-            //garbage collection -> garbagecollection.c
+
             case 'G':
-            case 'g':
-                garbageCollection();
+            case 'g': {
+                int remaining = garbageCollection();
                 print_buffer();
+                char msg[64];
+                snprintf(msg, sizeof(msg), "GC complete. Active lines: %d", remaining);
+                ui_status(msg);
                 break;
-            //quit -> exit (normal terminal)
+            }
+
             case 'Q':
             case 'q':
-                endwin();
+                ui_cleanup();
                 return 0;
-            //ui keyup -> bir satir yukari
+
             case KEY_UP:
-                //cursor line ui.c
+                ui_move_up();
                 break;
-            // ui keywdown -> bir satir asagi
+
             case KEY_DOWN:
-                //cursor line ui.c
+                ui_move_down();
                 break;
-            //ui keyleft -> bir karakter sola
+
             case KEY_LEFT:
-                //cursor char ui.c
+                ui_move_left();
                 break;
-            //ui keyright -> bir karakter saga
+
             case KEY_RIGHT:
-                //cursor char ui.c
+                ui_move_right();
                 break;
+
             case '\n':
-            //keyenter -> satir secimi
             case KEY_ENTER:
-                //cursor char ui.c
+                print_buffer();
                 break;
-            
-            }
+
+            default:
+                break;
+        }
     }
 }
