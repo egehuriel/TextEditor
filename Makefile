@@ -13,14 +13,14 @@ SRCS = 	src/main.c \
 		
 OBJS = $(patsubst src/%.c, $(BUILD)/%.o, $(SRCS))
 
-all: $(BUILD) $(TARGET)
+all: $(BUILD) $(BUILD)/$(TARGET)
 
 $(BUILD):
 	@echo "\n-------Building-------\n"
 	mkdir -p $(BUILD)
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
+$(BUILD)/$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(BUILD)/$(TARGET) $(OBJS) $(LIBS)
 	@echo "\n-------Built-------\n"
 	
 $(BUILD)/%.o: src/%.c
@@ -36,6 +36,6 @@ clear:
 
 run: all
 	@echo "\n-------Running-------\n"
-	./editor
+	./$(BUILD)/$(TARGET)
 	
 .PHONY: all clean run

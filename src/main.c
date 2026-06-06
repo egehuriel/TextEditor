@@ -1,4 +1,9 @@
-#include <stdio.h>
+/*
+main.c - Ege Huriel (Kisi 5)
+Integration
+- ana komut dongusu
+- tus navigasyonu / keymapping
+*/
 #include <string.h>
 #include <ncurses.h>
 #include "../include/editor.h"
@@ -9,11 +14,17 @@
 int main(void) {
     int ch;
     char filename[256];
-
+    
+    //initscr();
+    //raw();
+    //noecho();
+    //keypad(stdscr, TRUE);
+    
+    //ncurses kurulm
     ui_init();
-    ui_status("Ready. Press E to open a file.");
-
-    while (1) {
+    print_buffer();
+    ui_status("Command: E)dit  I)nsert  D)elete  R)eplace  P)rint  S)ave  G)C  Q)uit");
+    while(true){
         ch = getch();
 
         switch (ch) {
@@ -22,11 +33,13 @@ int main(void) {
             case 'e':
                 ui_status("Filename: ");
                 echo();
-                getnstr(filename, sizeof(filename) - 1);
+                mvprintw(0,0, "file name: ");
+                scanw("%s", filename);
                 noecho();
                 edit(filename);
                 print_buffer();
-                ui_status("File loaded.");
+                move(UI_TEXT_START_ROW, 0);
+                refresh();
                 break;
 
             case 'I':
@@ -39,25 +52,15 @@ int main(void) {
 
             case 'D':
             case 'd':
-                if (deleteNode(cursorLineNth()) == 0) {
-                    maybeAutoGC();
-                    print_buffer();
-                    ui_status("Line deleted.");
-                } else {
-                    ui_status("ERROR: Delete failed.");
-                }
+                deleteNode(cursorLine());
+                maybeAutoGC();
                 break;
-
+            //replace
             case 'R':
             case 'r':
-                if (replace(cursorLineNth(), cursorChar()) == 0) {
-                    print_buffer();
-                    ui_status("Character replaced.");
-                } else {
-                    ui_status("ERROR: Replace failed.");
-                }
+                replace(cursorLine(), cursorChar());
                 break;
-
+            //print
             case 'P':
             case 'p':
                 print_buffer();
