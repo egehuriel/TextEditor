@@ -4,6 +4,7 @@ Integration
 - ana komut dongusu
 - tus navigasyonu / keymapping
 */
+#include <stdio.h>
 #include <string.h>
 #include <ncurses.h>
 #include "../include/editor.h"
@@ -28,37 +29,52 @@ int main(void) {
         ch = getch();
 
         switch (ch) {
-
+            //edit -> dosya yukeleme | secme
             case 'E':
             case 'e':
-                ui_status("Filename: ");
+                int sRows, sCols;
+                getmaxyx(stdscr, sRows, sCols);
+                move(sRows - 1, 0);
+                clrtoeol();
+                mvprintw(sRows - 1, 0, "file name: ");
+                refresh();
                 echo();
-                mvprintw(0,0, "file name: ");
-                scanw("%s", filename);
+                getnstr(filename, sizeof(filename) - 1);
                 noecho();
                 edit(filename);
                 print_buffer();
+                ui_status("File loaded");
                 move(UI_TEXT_START_ROW, 0);
                 refresh();
                 break;
-
+            //insert
             case 'I':
             case 'i':
-                insert(cursorLineNth());
+                insert(cursorLine());
                 maybeAutoGC();
                 print_buffer();
                 ui_status("Line inserted.");
                 break;
-
+            //delete                
             case 'D':
             case 'd':
-                deleteNode(cursorLine());
-                maybeAutoGC();
+                if(deleteNode(cursorLine()) == 0){
+                    maybeAutoGC();
+                    print_buffer();
+                    ui_status("Line deleted");
+                } else {
+                    ui_status("Delete failed: invalid line.");
+                }
                 break;
             //replace
             case 'R':
             case 'r':
-                replace(cursorLine(), cursorChar());
+                if(replace(cursorLine(), cursorChar()) == 0){
+                    print_buffer();
+                    ui_status("Character replaced.");
+                } else {
+                    ui_status("Replace failed: invalid line or column.");
+                }
                 break;
             //print
             case 'P':
@@ -66,13 +82,13 @@ int main(void) {
                 print_buffer();
                 ui_status("Text displayed.");
                 break;
-
+            //save
             case 'S':
             case 's':
                 save();
                 ui_status("File saved.");
                 break;
-
+            //garbage collection
             case 'G':
             case 'g': {
                 int remaining = garbageCollection();
@@ -82,28 +98,28 @@ int main(void) {
                 ui_status(msg);
                 break;
             }
-
+            //quit
             case 'Q':
             case 'q':
                 ui_cleanup();
                 return 0;
-
+            //bir karakter yukari
             case KEY_UP:
                 ui_move_up();
                 break;
-
+            //bir karakter asagi
             case KEY_DOWN:
                 ui_move_down();
                 break;
-
+            //bir karakter sola
             case KEY_LEFT:
                 ui_move_left();
                 break;
-
+            //bir karakter saga
             case KEY_RIGHT:
                 ui_move_right();
                 break;
-
+            //satir secimi
             case '\n':
             case KEY_ENTER:
                 print_buffer();
